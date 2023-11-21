@@ -16,27 +16,31 @@ form.addEventListener('submit', (e) => {
   // console.log(password.value);
   // console.log(name.value);
   createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then((res) => {
-          const user = res.user;
-          console.log(user);
-          addDoc(collection(db, "users"), {
+  .then(async (res) => {
+      const user = res.user;
+      console.log("User created:", user);
+
+      try {
+          // Add user data to Firestore
+          const userDocRef = await addDoc(collection(db, "users"), {
               name: name.value,
               email: email.value,
-              uid: user.uid,
-          }).then((res) => {
-              console.log(res);
-              
-          }).catch((err) => {
-              console.log(err);
-          })
-             email.value=''
-      name.value=''
-      password.value=''
-      })
-      .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log(errorMessage);
-      });
-   
+              id: user.uid,
+          });
+
+          console.log("User document added:", userDocRef.id);
+
+          // Clear input fields
+          email.value = '';
+          name.value = '';
+          password.value = '';
+      } catch (error) {
+          console.error("Error adding user to Firestore:", error);
+      }
+  })
+  .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error("Error creating user:", errorMessage);
+  });
 })

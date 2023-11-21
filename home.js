@@ -12,23 +12,34 @@ const div=document.querySelector('.name-div')
 const card=document.querySelector('.div-2')
 
 
-onAuthStateChanged(auth, async(user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    
-        const uid = user.uid;
-        const q = query(collection(db, "users"), where('uid', '==', uid));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          console.log(doc.data());
-          div.innerHTML=doc.data().name
-        });
-      
-     }
-     else {
-      window.location='./index.html'
-    }
-  });
-  
+      const uid = user.uid;
+      console.log('User UID:', uid);
+
+      const q = query(collection(db, "users"), where('id', '==', uid));
+      console.log('Firestore Query:', q);
+
+      try {
+          const querySnapshot = await getDocs(q);
+          console.log('Query Snapshot:', querySnapshot);
+
+          if (querySnapshot.size > 0) {
+              querySnapshot.forEach((doc) => {
+                  console.log(doc.data());
+                  div.innerHTML = doc.data().name;
+              });
+          } else {
+              console.error("User document not found");
+          }
+      } catch (error) {
+          console.error("Error querying Firestore:", error);
+      }
+  } else {
+      window.location = './index.html';
+  }
+});
+
   
   button.addEventListener('click',()=>{
     signOut(auth).then(() => {
