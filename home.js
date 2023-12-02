@@ -15,30 +15,19 @@ const card=document.querySelector('.div-2')
 onAuthStateChanged(auth, async (user) => {
   if (user) {
       const uid = user.uid;
-      console.log('User UID:', uid);
-
-      const q = query(collection(db, "users"), where('id', '==', uid));
-      console.log('Firestore Query:', q);
-
-      try {
-          const querySnapshot = await getDocs(q);
-          console.log('Query Snapshot:', querySnapshot);
-
-          if (querySnapshot.size > 0) {
-              querySnapshot.forEach((doc) => {
-                  console.log(doc.data());
-                  div.innerHTML = doc.data().name;
-              });
-          } else {
-              console.error("User document not found");
-          }
-      } catch (error) {
-          console.error("Error querying Firestore:", error);
-      }
+      const q = query(collection(db, "users"), where("uid", "==", uid));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+          // console.log(doc.data());
+          div.innerHTML = doc.data().name
+         
+      });
+      getData(user.uid)
   } else {
-      window.location = './index.html';
+      window.location = 'index.html'
   }
 });
+  
 
   
   button.addEventListener('click',()=>{
@@ -56,7 +45,7 @@ onAuthStateChanged(auth, async (user) => {
 
   function renderingPost(){
     card.innerHTML=''
-    console.log(arr)
+    // console.log(arr)
     arr.map((item)=>{
       card.innerHTML+=`<h1>${item.todo}</h1>
       <button type="button" id="delete">Delete</button>
@@ -100,9 +89,9 @@ renderingPost()
 
 
 
-  async function getdata(){
+  async function getData(uid){
     arr.length=0;
-    const q = query(collection(db, "post") , orderBy('postDate','desc'))
+    const q = query(collection(db, "post") , orderBy('postDate','desc') , where('uid','==', uid) )
     const querySnapshot = await getDocs(q);
 querySnapshot.forEach((doc) => {
   arr.push({...doc.data(), docId: doc.id})
@@ -112,7 +101,7 @@ querySnapshot.forEach((doc) => {
 renderingPost()
   }
 
-  getdata()
+  
 // renderingPost()
 // render()
   form.addEventListener('submit',async(event)=>{
